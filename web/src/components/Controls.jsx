@@ -47,8 +47,8 @@ export default function Controls({
   } else if (canPlay) {
     if (state === 'GAME_OVER') {
       buttons.push(
-        <button key='play' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(onPlay)} disabled={locked}>Play Again</button>,
-        <button key='home' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(onHome)} disabled={locked}>Home</button>
+        <button key='play' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(onPlay)}>Play Again</button>,
+        <button key='home' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(onHome)}>Home</button>
       )
     } else {
       buttons.push(
