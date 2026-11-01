@@ -1,0 +1,77 @@
+/* Blackjack x Buckshot Roulette - Theme tokens and base styles */
+
+:root {
+  /* Core palette */
+  --bg-0: #050507;       /* near black */
+  --bg-1: #0c0c12;       /* panels */
+  --bg-2: #15151d;
+  --felt: #0d1c17;       /* dark sickly green table */
+  --bone: #e6dfc9;       /* main text, never pure white */
+  --ash: #8b8b96;        /* secondary text */
+  --gold: #d4af37;       /* matches the card back border */
+  --blood: #8b0f1a;
+  --blood-bright: #d1202f;
+  --lamp: #e0b45a;       /* warm lamp light */
+  --toxic: #5fae7a;      /* rare accent */
+
+  /* Card sizing */
+  --card-w: clamp(84px, 10.5vw, 150px);
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+
+  /* Transitions */
+  --transition-fast: 160ms ease;
+  --transition-med: 300ms ease;
+  --transition-slow: 600ms ease;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-0);
+  color: var(--bone);
+  font-family: 'IM Fell English', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, .btn {
+  font-family: 'Cinzel', Georgia, serif;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+a {
+  color: var(--lamp);
+  text-decoration: none;
+}
+a:hover { color: var(--gold); }
+
+button {
+  font-family: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

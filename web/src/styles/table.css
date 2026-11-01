@@ -1,0 +1,263 @@
+/* Blackjack x Buckshot Roulette - Table and card styles */
+
+:root {
+  --card-w: clamp(84px, 10.5vw, 150px);
+}
+
+/* Card component */
+.card {
+  width: var(--card-w);
+  aspect-ratio: 5 / 7;
+  margin-left: calc(var(--card-w) * -0.28);   /* overlap in a hand */
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.7));
+  animation: deal-in 420ms ease-out both;
+  transition: transform var(--transition-fast);
+}
+.card:first-child { margin-left: 0; }
+.card:hover { transform: translateY(-8px); }
+.card-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* Drawn fallback, used only if the PNG is missing */
+.card-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  background: var(--bone);
+  border: 2px solid var(--gold);
+}
+.card-fallback.red { color: var(--blood-bright); }
+.card-fallback.black { color: #111; }
+.card-fallback.back {
+  background: var(--bg-1);
+  border-color: var(--gold);
+}
+
+@keyframes deal-in {
+  from { opacity: 0; transform: translateY(-40px) rotate(-6deg); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes flip-in {
+  from { transform: rotateY(90deg); }
+  to   { transform: rotateY(0); }
+}
+.flip-in { animation: flip-in 380ms ease-out; }
+
+/* Hand layout */
+.hand {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  min-height: calc(var(--card-w) * 1.4);
+}
+
+/* HP Candles */
+.candles {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-end;
+}
+.candle {
+  position: relative;
+  width: clamp(28px, 4vw, 40px);
+  height: clamp(80px, 12vw, 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.wax {
+  width: 80%;
+  height: 85%;
+  background: linear-gradient(180deg, #f5eed9 0%, #d4c9a8 100%);
+  border-radius: 6px 6px 12px 12px;
+  box-shadow: inset 0 -4px 8px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.5);
+  position: relative;
+  z-index: 1;
+}
+.flame {
+  position: relative;
+  width: 60%;
+  height: 40%;
+  background: linear-gradient(180deg, #ffd700 0%, #ff8c00 50%, #b84000 100%);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  filter: drop-shadow(0 0 6px rgba(255, 165, 0, 0.8)) drop-shadow(0 0 12px rgba(255, 100, 0, 0.6));
+  animation: flame-flicker 0.6s ease-in-out infinite alternate;
+  z-index: 0;
+  margin-bottom: -4px;
+}
+@keyframes flame-flicker {
+  0%   { transform: scaleX(1) scaleY(1) translateX(-2%); opacity: 0.95; }
+  25%  { transform: scaleX(1.05) scaleY(0.95) translateX(3%); opacity: 1; }
+  50%  { transform: scaleX(0.95) scaleY(1.05) translateX(-1%); opacity: 0.9; }
+  75%  { transform: scaleX(1.02) scaleY(0.98) translateX(2%); opacity: 1; }
+  100% { transform: scaleX(1) scaleY(1) translateX(-2%); opacity: 0.95; }
+}
+.candle.out .flame {
+  display: none;
+}
+.candle.out .wax::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 12px;
+  background: radial-gradient(ellipse at center, var(--ash) 0%, transparent 70%);
+  opacity: 0.5;
+  animation: smoke-rise 1.5s ease-out forwards;
+}
+@keyframes smoke-rise {
+  0%   { opacity: 0.5; transform: translateX(-50%) translateY(0) scale(1); }
+  100% { opacity: 0;   transform: translateX(-50%) translateY(-30px) scale(1.5); }
+}
+
+/* Shotgun panel */
+.shotgun-panel {
+  background: var(--bg-1);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: center;
+  min-width: 180px;
+}
+.shell-row {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+.shell-icon {
+  width: 18px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid var(--gold);
+}
+.shell-icon.live {
+  background: linear-gradient(180deg, var(--blood-bright), var(--blood));
+  box-shadow: 0 0 8px rgba(209, 32, 47, 0.6);
+}
+.shell-icon.blank {
+  background: linear-gradient(180deg, #555, #222);
+}
+.shell-count {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.9rem;
+  color: var(--ash);
+}
+
+/* Message bar */
+.message-bar {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-md);
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: var(--bone);
+  line-height: 1.4;
+}
+.message-bar .bust { color: var(--blood-bright); font-weight: 600; }
+.message-bar .blackjack { color: var(--gold); font-weight: 600; }
+.message-bar .damage { color: var(--blood-bright); }
+.message-bar .survive { color: var(--toxic); }
+
+/* Table surface */
+.table-surface {
+  background: var(--felt);
+  border-radius: 50% / 20%;
+  box-shadow:
+    inset 0 0 80px rgba(0, 0, 0, 0.8),
+    0 0 60px rgba(0, 0, 0, 0.6),
+    inset 0 2px 0 rgba(212, 175, 55, 0.1);
+  position: relative;
+}
+.table-surface::before {
+  content: '';
+  position: absolute;
+  inset: var(--space-md);
+  border-radius: 50% / 20%;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  pointer-events: none;
+}
+
+/* Dealer silhouette */
+.dealer-silhouette {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 300px;
+  background:
+    radial-gradient(ellipse at 50% 20%, var(--blood-bright) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 85%, var(--bg-0) 0%, transparent 50%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+.dealer-silhouette .eyes {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 30px;
+}
+.dealer-silhouette .eye {
+  width: 12px;
+  height: 12px;
+  background: var(--blood-bright);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--blood-bright), 0 0 16px var(--blood-bright);
+  animation: eye-glow 3s ease-in-out infinite;
+}
+.dealer-silhouette .eye:nth-child(2) { animation-delay: 0.5s; }
+@keyframes eye-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Game over overlay */
+.game-over-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 7, 0.95);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+}
+.game-over-overlay h1 {
+  margin: 0;
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  text-shadow: 0 0 30px currentColor;
+}
+.game-over-overlay .win { color: var(--gold); }
+.game-over-overlay .lose { color: var(--blood-bright); }
+.game-over-overlay .final-stats {
+  color: var(--ash);
+  font-size: clamp(1rem, 2vw, 1.3rem);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .flame,
+  .dealer-silhouette .eye,
+  .flame-flicker {
+    animation: none !important;
+  }
+}

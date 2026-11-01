@@ -34,6 +34,7 @@ class Game:
         self.round_result: str | None = None
         self.last_shot_result: bool | None = None
         self.last_target: Participant | None = None
+        self.last_damage = 0
         self.dealer_ai = DealerAI()
 
     def start_match(self) -> None:
@@ -59,6 +60,7 @@ class Game:
         self.round_result = None
         self.last_shot_result = None
         self.last_target = None
+        self.last_damage = 0
 
     def player_hit(self) -> None:
         """Draw a card for the player; if bust, end the round."""
@@ -176,7 +178,11 @@ class Game:
         self.last_shot_result = is_live
         self.last_target = target  # so the UI can show who was shot
         if is_live:
-            target.take_damage(2 if bust_damage else 1)
+            damage = 2 if bust_damage else 1
+            target.take_damage(damage)
+            self.last_damage = damage
+        else:
+            self.last_damage = 0
 
         if self.check_match_over():
             self.state = GameState.GAME_OVER

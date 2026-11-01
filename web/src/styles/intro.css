@@ -1,0 +1,177 @@
+/* Blackjack x Buckshot Roulette - Intro sequence styles */
+
+.title-1 {
+  font-size: clamp(2.4rem, 8vw, 6rem);
+  color: var(--bone);
+  text-shadow: 0 0 24px rgba(0, 0, 0, 0.9);
+  margin: 0;
+}
+
+.title-2 {
+  font-size: clamp(1.2rem, 3.5vw, 2.4rem);
+  color: var(--blood-bright);
+  text-shadow: 0 0 14px rgba(139, 15, 26, 0.8);
+  margin: var(--space-xs) 0 0;
+}
+
+.tagline {
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  color: var(--ash);
+  font-style: italic;
+  font-family: 'IM Fell English', Georgia, serif;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.layer {
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.layer.visible { opacity: 1; }
+
+/* Short, rare glitch (not constant) */
+.title-2.visible {
+  animation: glitch 5s steps(1) infinite;
+}
+@keyframes glitch {
+  0%, 92%, 100% { transform: none; }
+  93% { transform: translate(-3px, 1px); }
+  95% { transform: translate(3px, -1px); }
+  97% { transform: translate(-1px, 0); }
+}
+
+/* Lamp flicker on: slow steps, never a strobe */
+.lamp-on.visible {
+  animation: lamp-on 1.6s steps(1) both;
+}
+@keyframes lamp-on {
+  0%   { opacity: 0.1; }
+  25%  { opacity: 0.6; }
+  40%  { opacity: 0.2; }
+  60%  { opacity: 0.8; }
+  75%  { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* Gate screen */
+.gate-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-0);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+  transition: opacity 0.6s ease;
+}
+.gate-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.gate-prompt {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  color: var(--bone);
+  opacity: 0.7;
+  animation: gate-pulse 2.5s ease-in-out infinite;
+  cursor: pointer;
+}
+@keyframes gate-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* Title card fan */
+.title-fan {
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--card-w) * -0.3);
+  margin-top: var(--space-xl);
+  opacity: 0;
+  transition: opacity 1.5s ease, transform 1.5s ease;
+  transform: translateY(20px);
+}
+.title-fan.visible {
+  opacity: 1;
+  transform: none;
+}
+.title-fan .card {
+  opacity: 0.45;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.9));
+}
+.title-fan .card:hover {
+  opacity: 0.8;
+  transform: translateY(-4px);
+}
+
+/* Buttons */
+.btn {
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--gold);
+  background: var(--bg-1);
+  color: var(--bone);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+}
+.btn:hover {
+  background: var(--bg-2);
+  box-shadow: 0 0 16px rgba(212, 175, 55, 0.3);
+  border-color: var(--lamp);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.btn--danger {
+  border-color: var(--blood-bright);
+  background: rgba(139, 15, 26, 0.3);
+}
+.btn--danger:hover {
+  background: rgba(139, 15, 26, 0.6);
+  box-shadow: 0 0 16px rgba(209, 32, 47, 0.4);
+  border-color: var(--blood-bright);
+}
+
+/* Rules modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+  padding: var(--space-lg);
+}
+.modal {
+  background: var(--bg-1);
+  border: 1px solid var(--gold);
+  border-radius: 8px;
+  padding: var(--space-xl);
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+}
+.modal h2 {
+  margin-top: 0;
+  color: var(--gold);
+  text-align: center;
+}
+.modal p {
+  color: var(--bone);
+  line-height: 1.7;
+}
+.modal .btn-row {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-lg);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .title-2.visible,
+  .lamp-on.visible {
+    animation: none !important;
+  }
+  .layer { transition: none !important; }
+}

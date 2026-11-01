@@ -1,0 +1,62 @@
+/* Blackjack x Buckshot Roulette - Atmosphere layers */
+
+.atmos,
+.atmos > div {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+.atmos { z-index: 1; }
+
+/* Lamp: a soft cone of light from the top center that breathes slowly */
+.lamp {
+  background: radial-gradient(ellipse 45% 55% at 50% 0%, rgba(224, 180, 90, 0.22), transparent 70%);
+  animation: lamp-breathe 7s ease-in-out infinite;
+}
+@keyframes lamp-breathe {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Fog: two big blurred gradients drifting at different speeds */
+.fog {
+  background: radial-gradient(ellipse 60% 30% at 30% 80%, rgba(120, 140, 130, 0.10), transparent 70%);
+  animation: fog-drift 38s linear infinite alternate;
+}
+.fog-b {
+  animation-duration: 55s;
+  animation-direction: alternate-reverse;
+  opacity: 0.7;
+}
+@keyframes fog-drift {
+  from { transform: translateX(-6%); }
+  to   { transform: translateX(6%); }
+}
+
+/* Film grain: tiny SVG noise, stepped so it flickers like old film */
+.grain {
+  opacity: 0.09;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain-shift 0.8s steps(4) infinite;
+}
+@keyframes grain-shift {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-3%, 2%); }
+  50%  { transform: translate(2%, -3%); }
+  75%  { transform: translate(-2%, -1%); }
+}
+
+/* Vignette: dark edges that focus the eye on the table */
+.vignette {
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.85) 100%);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .lamp,
+  .fog,
+  .fog-b,
+  .grain {
+    animation: none !important;
+  }
+}
