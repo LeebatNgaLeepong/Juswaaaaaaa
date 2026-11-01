@@ -145,17 +145,17 @@ export default function useGame() {
     setScreenState('PLAYING')
   }, 500)
 
-  const onHome = () => run(async () => {
+  const onHome = () => {
     sound.play('click')
-    // Go back to title screen, resetting the game
+    // Navigation - bypass action guard
     if (!isMock) {
-      await apiCall('/match/new')
+      apiCall('/match/new')
     } else {
       setGame(allStates[0])
     }
     setShowGameOver(false)
     setScreenState('TITLE')
-  }, 500)
+  }
 
   const onHit = () => run(async () => {
     if (isMock) {
