@@ -17,6 +17,7 @@ export default function Table({
   onStand,
   onTrigger,
   onNext,
+  onHome,
   busy,
   locked
 }) {
@@ -98,6 +99,7 @@ export default function Table({
           onStand={onStand}
           onTrigger={onTrigger}
           onNext={onNext}
+          onHome={onHome}
           locked={locked}
         />
       </div>

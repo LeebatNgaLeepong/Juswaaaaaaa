@@ -137,9 +137,24 @@ export default function useGame() {
     if (isMock) {
       setGame(allStates[0])
     } else {
+      // Force a fresh state by calling /match/new and waiting for response
       await apiCall('/match/new')
     }
+    // Reset all game-over related state
+    setShowGameOver(false)
     setScreenState('PLAYING')
+  }, 500)
+
+  const onHome = () => run(async () => {
+    sound.play('click')
+    // Go back to title screen, resetting the game
+    if (!isMock) {
+      await apiCall('/match/new')
+    } else {
+      setGame(allStates[0])
+    }
+    setShowGameOver(false)
+    setScreenState('TITLE')
   }, 500)
 
   const onHit = () => run(async () => {
@@ -253,6 +268,7 @@ export default function useGame() {
     onNext,
     onIntroDone,
     onSkipIntro,
+    onHome,
     setScreenState,
     isMock,
     isCardGallery

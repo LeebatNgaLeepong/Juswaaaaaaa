@@ -32,6 +32,7 @@ function App() {
     onStand,
     onTrigger,
     onNext,
+    onHome,
     onIntroDone,
     onSkipIntro,
     setScreenState,
@@ -153,6 +154,7 @@ function App() {
             onStand={onStand}
             onTrigger={onTrigger}
             onNext={onNext}
+            onHome={onHome}
             busy={false}
             locked={locked}
           />
