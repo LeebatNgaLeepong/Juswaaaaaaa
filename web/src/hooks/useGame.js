@@ -145,11 +145,11 @@ export default function useGame() {
     setScreenState('PLAYING')
   }, 500)
 
-  const onHome = () => {
+  const onHome = async () => {
     sound.play('click')
-    // Navigation - bypass action guard
+    // Navigation - bypass action guard, but await the API call
     if (!isMock) {
-      apiCall('/match/new')
+      await apiCall('/match/new')
     } else {
       setGame(allStates[0])
     }
