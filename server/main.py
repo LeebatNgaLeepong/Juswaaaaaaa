@@ -1,10 +1,11 @@
 """FastAPI server for Blackjack x Buckshot Roulette.
 
-Exposes the game engine as a JSON API.
+Exposes the game engine as a JSON API with version guard.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from backend.game import Game
 from server.serializers import game_to_dict
 
@@ -21,48 +22,89 @@ app.add_middleware(
 
 # Single game instance in memory (solo play on one machine)
 game = Game()
+version = 0
+
+
+def state_with_version():
+    """Return game state with current version."""
+    data = game_to_dict(game)
+    data['version'] = version
+    return data
 
 
 @app.get("/api/state")
 def get_state():
-    """Return the current game state."""
-    return game_to_dict(game)
+    """Return the current game state with version."""
+    return state_with_version()
+
+
+def check_version(v: int = Query(...)):
+    """Check if client version matches server version. Return 409 if stale."""
+    global version
+    if v != version:
+        return JSONResponse(status_code=409, content=state_with_version())
+    return None
 
 
 @app.post("/api/match/new")
-def new_match():
+def new_match(v: int = Query(...)):
     """Start a new match and round."""
+    stale = check_version(v)
+    if stale:
+        return stale
+    global version
     game.start_match()
     game.start_round()
-    return game_to_dict(game)
+    version += 1
+    return state_with_version()
 
 
 @app.post("/api/hit")
-def hit():
+def hit(v: int = Query(...)):
     """Player hits (draws a card)."""
+    stale = check_version(v)
+    if stale:
+        return stale
+    global version
     game.player_hit()
-    return game_to_dict(game)
+    version += 1
+    return state_with_version()
 
 
 @app.post("/api/stand")
-def stand():
+def stand(v: int = Query(...)):
     """Player stands (dealer plays)."""
+    stale = check_version(v)
+    if stale:
+        return stale
+    global version
     game.player_stand()
-    return game_to_dict(game)
+    version += 1
+    return state_with_version()
 
 
 @app.post("/api/trigger")
-def pull_trigger():
+def pull_trigger(v: int = Query(...)):
     """Pull the trigger (resolve round with shotgun)."""
+    stale = check_version(v)
+    if stale:
+        return stale
+    global version
     game.pull_trigger()
-    return game_to_dict(game)
+    version += 1
+    return state_with_version()
 
 
 @app.post("/api/next")
-def next_round():
+def next_round(v: int = Query(...)):
     """Start the next round."""
+    stale = check_version(v)
+    if stale:
+        return stale
+    global version
     game.next_round()
-    return game_to_dict(game)
+    version += 1
+    return state_with_version()
 
 
 # Serve built React app in production

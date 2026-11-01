@@ -14,8 +14,9 @@
   --lamp: #e0b45a;       /* warm lamp light */
   --toxic: #5fae7a;      /* rare accent */
 
-  /* Card sizing */
-  --card-w: clamp(84px, 10.5vw, 150px);
+  /* Card sizing - depends on BOTH width and height for one-screen layout */
+  --card-w: clamp(56px, min(11vw, 17vh), 140px);
+  --gap: clamp(6px, 1.4vh, 16px);
 
   /* Spacing */
   --space-xs: 4px;
@@ -28,6 +29,12 @@
   --transition-fast: 160ms ease;
   --transition-med: 300ms ease;
   --transition-slow: 600ms ease;
+
+  /* Cooldown durations */
+  --cd-hit: 450ms;
+  --cd-stand: 900ms;
+  --cd-trigger: 1200ms;
+  --cd-next: 600ms;
 }
 
 * {
@@ -39,6 +46,7 @@ html, body, #root {
   width: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;          /* no page scroll, ever */
 }
 
 body {

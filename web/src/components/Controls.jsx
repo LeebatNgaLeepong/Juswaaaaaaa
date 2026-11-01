@@ -1,6 +1,7 @@
 // Blackjack x Buckshot Roulette - Controls component
 
 import '../styles/intro.css'
+import '../styles/table.css'
 
 export default function Controls({
   state,
@@ -12,43 +13,52 @@ export default function Controls({
   onPlay,
   onMute,
   muted,
-  disabled = false
+  locked = false
 }) {
   const buttons = []
 
-  if (state === 'PLAYER_TURN') {
+  // Determine what actions are allowed in current state
+  const canHit = state === 'PLAYER_TURN'
+  const canStand = state === 'PLAYER_TURN'
+  const canTrigger = state === 'ROUND_RESULT' && roundResult !== 'push'
+  const canNext = (state === 'ROUND_RESULT' && roundResult === 'push') || state === 'TRIGGER_PULL'
+  const canPlay = state === 'GAME_OVER' || state === 'TITLE'
+
+  // Wrapper to blur after click (prevents Space/Enter from re-triggering)
+  const makeClick = (handler) => (e) => {
+    e.currentTarget.blur()
+    handler(e)
+  }
+
+  if (canHit) {
     buttons.push(
-      <button key='hit' className='btn' onClick={onHit} disabled={disabled}>Hit</button>,
-      <button key='stand' className='btn' onClick={onStand} disabled={disabled}>Stand</button>
+      <button key='hit' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(onHit)} disabled={locked} style={{ '--cd': 'var(--cd-hit)' }}>Hit</button>,
+      <button key='stand' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(onStand)} disabled={locked} style={{ '--cd': 'var(--cd-stand)' }}>Stand</button>
     )
-  } else if (state === 'ROUND_RESULT') {
-    if (roundResult === 'push') {
+  } else if (canTrigger) {
+    buttons.push(
+      <button key='trigger' type='button' className={`btn btn--danger ${locked ? 'cooling' : ''}`} onClick={makeClick(onTrigger)} disabled={locked} style={{ '--cd': 'var(--cd-trigger)' }}>Pull Trigger</button>
+    )
+  } else if (canNext) {
+    buttons.push(
+      <button key='next' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(onNext)} disabled={locked} style={{ '--cd': 'var(--cd-next)' }}>Next Round</button>
+    )
+  } else if (canPlay) {
+    if (state === 'GAME_OVER') {
       buttons.push(
-        <button key='next' className='btn' onClick={onNext} disabled={disabled}>Next Round</button>
+        <button key='play' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(onPlay)} disabled={locked}>Play Again</button>
       )
     } else {
       buttons.push(
-        <button key='trigger' className='btn btn--danger' onClick={onTrigger} disabled={disabled}>Pull Trigger</button>
+        <button key='play' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(onPlay)} disabled={locked}>Play</button>,
+        <button key='rules' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(() => {})} disabled={locked}>How to Play</button>,
+        <button key='mute' type='button' className={`btn ${locked ? 'cooling' : ''}`} onClick={makeClick(onMute)} disabled={locked}>{muted ? 'Unmute' : 'Mute'}</button>
       )
     }
-  } else if (state === 'TRIGGER_PULL') {
-    buttons.push(
-      <button key='next' className='btn' onClick={onNext} disabled={disabled}>Next Round</button>
-    )
-  } else if (state === 'GAME_OVER') {
-    buttons.push(
-      <button key='play' className='btn' onClick={onPlay} disabled={disabled}>Play Again</button>
-    )
-  } else if (state === 'TITLE') {
-    buttons.push(
-      <button key='play' className='btn' onClick={onPlay} disabled={disabled}>Play</button>,
-      <button key='rules' className='btn' onClick={() => {}} disabled={disabled}>How to Play</button>,
-      <button key='mute' className='btn' onClick={onMute} disabled={disabled}>{muted ? 'Unmute' : 'Mute'}</button>
-    )
   }
 
   return (
-    <div className='controls' style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+    <div className='controls' style={{ display: 'flex', gap: 'var(--gap)', justifyContent: 'center', flexWrap: 'wrap' }}>
       {buttons}
     </div>
   )

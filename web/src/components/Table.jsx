@@ -1,4 +1,4 @@
-// Blackjack x Buckshot Roulette - Table component (main game screen)
+// Blackjack x Buckshot Roulette - Table component (one-screen layout)
 
 import Hand from './Hand'
 import HpCandles from './HpCandles'
@@ -17,11 +17,18 @@ export default function Table({
   onStand,
   onTrigger,
   onNext,
-  busy
+  busy,
+  locked
 }) {
   if (!game) return null
 
   const { player, dealer, shotgun, state, round_result, last_shot } = game
+
+  // Add 'many' class when 5+ cards
+  const dealerCards = dealer.hand?.cards || []
+  const playerCards = player.hand?.cards || []
+  const dealerMany = dealerCards.length >= 5
+  const playerMany = playerCards.length >= 5
 
   // Determine who was shot for the message
   const shotTarget = last_shot?.target
@@ -29,45 +36,35 @@ export default function Table({
   const shotDamage = last_shot?.damage
 
   return (
-    <div className={`table-container ${flash ? 'flash' : ''} ${shake ? 'shake' : ''}`} style={{
-      position: 'relative',
-      minHeight: '100vh',
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-    }}>
+    <div className={`table-screen ${flash ? 'flash' : ''} ${shake ? 'shake' : ''}`} style={{ position: 'relative' }}>
       <Atmosphere />
 
-      {/* Dealer area */}
-      <div className='dealer-area' style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '20px',
-        gap: '8px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', justifyContent: 'center' }}>
+      {/* Dealer silhouette - absolute positioned behind */}
+      {state !== 'PLAYER_TURN' && (
+        <div className='dealer-silhouette' aria-hidden='true'>
+          <div className='eyes'>
+            <div className='eye' />
+            <div className='eye' />
+          </div>
+        </div>
+      )}
+
+      {/* Dealer zone */}
+      <div className='zone' style={{ order: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', justifyContent: 'center', flexWrap: 'wrap' }}>
           <HpCandles hp={dealer.hp} max={3} label='Dealer' />
         </div>
-        <Hand cards={dealer.hand?.cards || []} hideSecond={revealDealer ? false : (state === 'PLAYER_TURN')} />
+        <Hand cards={dealerCards} hideSecond={revealDealer ? false : (state === 'PLAYER_TURN')} className={dealerMany ? 'many' : ''} />
         {state !== 'PLAYER_TURN' && dealer.hand?.value !== null && (
-          <div style={{ color: 'var(--ash)', fontSize: '0.9rem' }}>Value: {dealer.hand.value}</div>
+          <div style={{ color: 'var(--ash)', fontSize: 'clamp(0.7rem, 1.8vh, 0.9rem)' }}>Value: {dealer.hand.value}</div>
         )}
         {state === 'PLAYER_TURN' && (
-          <div style={{ color: 'var(--ash)', fontSize: '0.9rem' }}>Value: ??</div>
+          <div style={{ color: 'var(--ash)', fontSize: 'clamp(0.7rem, 1.8vh, 0.9rem)' }}>Value: ??</div>
         )}
       </div>
 
       {/* Middle area: message + shotgun */}
-      <div className='middle-area' style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '20px',
-        padding: '0 20px'
-      }}>
+      <div className='middle' style={{ order: 2 }}>
         <MessageBar
           message=''
           state={state}
@@ -83,19 +80,17 @@ export default function Table({
         />
       </div>
 
-      {/* Player area */}
-      <div className='player-area' style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '20px',
-        gap: '16px'
-      }}>
-        <Hand cards={player.hand?.cards || []} />
+      {/* Player zone */}
+      <div className='zone' style={{ order: 3 }}>
+        <Hand cards={playerCards} className={playerMany ? 'many' : ''} />
         {player.hand?.value !== undefined && (
-          <div style={{ color: 'var(--ash)', fontSize: '0.9rem' }}>Value: {player.hand.value}</div>
+          <div style={{ color: 'var(--ash)', fontSize: 'clamp(0.7rem, 1.8vh, 0.9rem)' }}>Value: {player.hand.value}</div>
         )}
         <HpCandles hp={player.hp} max={3} label='Player' />
+      </div>
+
+      {/* Controls - always at bottom */}
+      <div className='controls' style={{ order: 4 }}>
         <Controls
           state={state}
           roundResult={round_result}
@@ -103,21 +98,9 @@ export default function Table({
           onStand={onStand}
           onTrigger={onTrigger}
           onNext={onNext}
-          disabled={busy}
+          locked={locked}
         />
       </div>
-
-      {/* Flash overlay */}
-      {flash && <div className='flash-overlay' style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(209, 32, 47, 0.4)',
-        pointerEvents: 'none',
-        zIndex: 50,
-        animation: 'flash-fade 300ms ease-out forwards'
-      }} />}
-
-      {/* Shake is handled via CSS on container */}
     </div>
   )
 }

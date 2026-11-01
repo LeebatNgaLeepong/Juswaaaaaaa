@@ -26,6 +26,7 @@ function App() {
     screenState,
     introSeen,
     sound,
+    locked,
     onPlay,
     onHit,
     onStand,
@@ -43,20 +44,31 @@ function App() {
     preloadCards()
   }, [])
 
-  // Handle keyboard shortcuts
+  // Handle keyboard shortcuts - goes through the same guarded functions as mouse
   useEffect(() => {
     const handleKey = (e) => {
       if (screenState !== 'PLAYING' || error) return
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return
+      if (e.repeat) return  // holding a key does nothing
 
-      if (e.key === 'h' || e.key === 'H') onHit()
-      else if (e.key === 's' || e.key === 'S') onStand()
-      else if (e.key === ' ' || e.key === 'Enter') {
+      const key = e.key.toLowerCase()
+
+      // Check what actions are valid in current state
+      const canHit = game?.state === 'PLAYER_TURN'
+      const canStand = game?.state === 'PLAYER_TURN'
+      const canAdvance = (game?.state === 'ROUND_RESULT' && game.round_result !== 'push') ||
+                         game?.state === 'TRIGGER_PULL' ||
+                         (game?.state === 'ROUND_RESULT' && game.round_result === 'push')
+
+      if (key === 'h' && canHit) { e.preventDefault(); onHit() }
+      else if (key === 's' && canStand) { e.preventDefault(); onStand() }
+      else if ((key === ' ' || key === 'enter') && canAdvance) {
+        e.preventDefault()  // stops the focused button from also clicking
         if (game?.state === 'ROUND_RESULT' && game.round_result !== 'push') onTrigger()
         else if (game?.state === 'TRIGGER_PULL') onNext()
         else if (game?.state === 'ROUND_RESULT' && game.round_result === 'push') onNext()
         else if (game?.state === 'GAME_OVER') onPlay()
-      } else if (e.key === 'm' || e.key === 'M') {
+      } else if (key === 'm' || key === 'M') {
         sound.toggleMute()
       }
     }
@@ -74,7 +86,7 @@ function App() {
   if (loading) {
     return (
       <div style={{
-        minHeight: '100vh',
+        height: '100dvh',
         background: 'var(--bg-0)',
         display: 'grid',
         placeItems: 'center',
@@ -92,7 +104,7 @@ function App() {
   if (error) {
     return (
       <div style={{
-        minHeight: '100vh',
+        height: '100dvh',
         background: 'var(--bg-0)',
         display: 'grid',
         placeItems: 'center',
@@ -111,7 +123,7 @@ function App() {
   }
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', width: '100%' }}>
+    <div style={{ position: 'relative', height: '100dvh', width: '100%' }}>
       {/* Screen routing */}
       {screenState === 'INTRO' && (
         <Intro
@@ -142,6 +154,7 @@ function App() {
             onTrigger={onTrigger}
             onNext={onNext}
             busy={false}
+            locked={locked}
           />
 
           {showGameOver && (

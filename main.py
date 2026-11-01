@@ -1,9 +1,9 @@
 """Main entry point for Blackjack x Buckshot Roulette.
 
-Pygame frontend entry point.
+Starts the FastAPI server (which also serves the built React app in production).
 """
 
-from frontend.app import main
+import uvicorn
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run("server.main:app", host="0.0.0.0", port=8000, reload=True)

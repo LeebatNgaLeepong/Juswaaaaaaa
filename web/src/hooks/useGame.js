@@ -4,6 +4,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { allStates } from '../dev/mockStates'
 import useSound from './useSound'
+import { useActionGuard } from './useActionGuard'
 
 const API_BASE = '/api'
 
@@ -23,6 +24,9 @@ export default function useGame() {
   const sound = useSound()
   const prevStateRef = useRef(null)
   const dealerRevealTimer = useRef(null)
+
+  // Action guard for spam prevention
+  const { run, locked } = useActionGuard()
 
   // Check for mock mode
   const isMock = new URLSearchParams(window.location.search).get('mock') === '1'
@@ -105,13 +109,19 @@ export default function useGame() {
     }
   }, [])
 
-  // Handlers
+  // Handlers - wrapped with action guard
   const apiCall = async (endpoint, method = 'POST') => {
-    if (busy) return
     if (isMock) return // Mock mode handled separately
-    setBusy(true)
+    if (!game) return
     try {
-      const res = await fetch(`${API_BASE}${endpoint}`, { method })
+      const v = game.version
+      const res = await fetch(`${API_BASE}${endpoint}?v=${v}`, { method })
+      if (res.status === 409) {
+        // Stale request - server returned current state
+        const data = await res.json()
+        setGame(data)
+        return data
+      }
       if (!res.ok) throw new Error(`API error: ${res.status}`)
       const data = await res.json()
       setGame(data)
@@ -119,22 +129,20 @@ export default function useGame() {
     } catch (e) {
       setError(e.message)
       console.error(e)
-    } finally {
-      setBusy(false)
     }
   }
 
-  const onPlay = () => {
+  const onPlay = () => run(async () => {
     sound.play('click')
     if (isMock) {
       setGame(allStates[0])
     } else {
-      apiCall('/match/new')
+      await apiCall('/match/new')
     }
     setScreenState('PLAYING')
-  }
+  }, 500)
 
-  const onHit = () => {
+  const onHit = () => run(async () => {
     if (isMock) {
       // Simple mock: just advance to next mock state
       const idx = allStates.findIndex(s => s === game)
@@ -144,11 +152,11 @@ export default function useGame() {
       }
     } else {
       sound.play('card')
-      apiCall('/hit')
+      await apiCall('/hit')
     }
-  }
+  }, 450)
 
-  const onStand = () => {
+  const onStand = () => run(async () => {
     if (isMock) {
       const idx = allStates.findIndex(s => s === game)
       if (idx >= 0 && idx < allStates.length - 1) {
@@ -157,11 +165,13 @@ export default function useGame() {
       }
     } else {
       sound.play('card')
-      apiCall('/stand')
+      await apiCall('/stand')
+      // Dealer reveal delay is inside the lock
+      await new Promise(resolve => setTimeout(resolve, 800))
     }
-  }
+  }, 900)
 
-  const onTrigger = () => {
+  const onTrigger = () => run(async () => {
     sound.play('click')
     if (isMock) {
       const idx = allStates.findIndex(s => s === game)
@@ -169,11 +179,12 @@ export default function useGame() {
         setGame(allStates[idx + 1])
       }
     } else {
-      apiCall('/trigger')
+      await apiCall('/trigger')
     }
-  }
+    // Flash, shake, sound handled in useEffect on state change
+  }, 1200)
 
-  const onNext = () => {
+  const onNext = () => run(async () => {
     sound.play('click')
     if (isMock) {
       const idx = allStates.findIndex(s => s === game)
@@ -181,9 +192,9 @@ export default function useGame() {
         setGame(allStates[idx + 1])
       }
     } else {
-      apiCall('/next')
+      await apiCall('/next')
     }
-  }
+  }, 600)
 
   const onIntroDone = () => {
     setScreenState('TITLE')
@@ -203,6 +214,23 @@ export default function useGame() {
     }
   }, [isMock])
 
+  // Dev check for page height
+  useEffect(() => {
+    if (!import.meta.env.DEV) return
+    const check = () => {
+      const el = document.documentElement
+      if (el.scrollHeight > window.innerHeight + 1) {
+        console.warn('Page taller than screen:', el.scrollHeight, 'vs', window.innerHeight)
+      }
+    }
+    window.addEventListener('resize', check)
+    const interval = setInterval(check, 2000)
+    return () => {
+      window.removeEventListener('resize', check)
+      clearInterval(interval)
+    }
+  }, [])
+
   return {
     game,
     loading,
@@ -216,6 +244,7 @@ export default function useGame() {
     screenState,
     introSeen,
     sound,
+    locked,
     setMessage,
     onPlay,
     onHit,

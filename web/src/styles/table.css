@@ -1,9 +1,5 @@
 /* Blackjack x Buckshot Roulette - Table and card styles */
 
-:root {
-  --card-w: clamp(84px, 10.5vw, 150px);
-}
-
 /* Card component */
 .card {
   width: var(--card-w);
@@ -57,18 +53,22 @@
   align-items: flex-end;
   gap: 0;
   min-height: calc(var(--card-w) * 1.4);
+  --overlap: -0.28;
 }
+.hand .card { margin-left: calc(var(--card-w) * var(--overlap)); }
+.hand .card:first-child { margin-left: 0; }
+.hand.many { --overlap: -0.45; }
 
 /* HP Candles */
 .candles {
   display: flex;
-  gap: var(--space-md);
+  gap: var(--gap);
   align-items: flex-end;
 }
 .candle {
   position: relative;
-  width: clamp(28px, 4vw, 40px);
-  height: clamp(80px, 12vw, 120px);
+  width: clamp(20px, 3vw, 32px);
+  height: clamp(50px, 10vh, 90px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -100,9 +100,7 @@
   75%  { transform: scaleX(1.02) scaleY(0.98) translateX(2%); opacity: 1; }
   100% { transform: scaleX(1) scaleY(1) translateX(-2%); opacity: 0.95; }
 }
-.candle.out .flame {
-  display: none;
-}
+.candle.out .flame { display: none; }
 .candle.out .wax::after {
   content: '';
   position: absolute;
@@ -120,17 +118,17 @@
   100% { opacity: 0;   transform: translateX(-50%) translateY(-30px) scale(1.5); }
 }
 
-/* Shotgun panel */
+/* Shotgun panel - compact */
 .shotgun-panel {
   background: var(--bg-1);
   border: 1px solid var(--gold);
   border-radius: 8px;
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
   align-items: center;
-  min-width: 180px;
+  min-width: 140px;
 }
 .shell-row {
   display: flex;
@@ -138,9 +136,9 @@
   align-items: center;
 }
 .shell-icon {
-  width: 18px;
-  height: 28px;
-  border-radius: 4px;
+  width: 14px;
+  height: 22px;
+  border-radius: 3px;
   border: 1px solid var(--gold);
 }
 .shell-icon.live {
@@ -152,21 +150,24 @@
 }
 .shell-count {
   font-family: 'Cinzel', Georgia, serif;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--ash);
 }
 
-/* Message bar */
+/* Message bar - single line */
 .message-bar {
-  min-height: 60px;
+  min-height: clamp(36px, 7vh, 64px);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: var(--space-md);
-  font-size: clamp(1rem, 2vw, 1.3rem);
+  padding: 0 var(--gap);
+  font-size: clamp(0.95rem, 2.4vh, 1.4rem);
   color: var(--bone);
   line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .message-bar .bust { color: var(--blood-bright); font-weight: 600; }
 .message-bar .blackjack { color: var(--gold); font-weight: 600; }
@@ -198,12 +199,12 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
-  height: 300px;
+  width: 160px;
+  height: 240px;
   background:
     radial-gradient(ellipse at 50% 20%, var(--blood-bright) 0%, transparent 60%),
     radial-gradient(ellipse at 50% 85%, var(--bg-0) 0%, transparent 50%);
-  opacity: 0.6;
+  opacity: 0.5;
   pointer-events: none;
 }
 .dealer-silhouette .eyes {
@@ -212,11 +213,11 @@
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 30px;
+  gap: 24px;
 }
 .dealer-silhouette .eye {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   background: var(--blood-bright);
   border-radius: 50%;
   box-shadow: 0 0 8px var(--blood-bright), 0 0 16px var(--blood-bright);
@@ -242,14 +243,109 @@
 }
 .game-over-overlay h1 {
   margin: 0;
-  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-size: clamp(2rem, 7vw, 4rem);
   text-shadow: 0 0 30px currentColor;
 }
 .game-over-overlay .win { color: var(--gold); }
 .game-over-overlay .lose { color: var(--blood-bright); }
 .game-over-overlay .final-stats {
   color: var(--ash);
-  font-size: clamp(1rem, 2vw, 1.3rem);
+  font-size: clamp(0.9rem, 2vw, 1.2rem);
+}
+
+/* One-screen layout base */
+.table-screen {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+  gap: var(--gap);
+  padding: var(--gap) clamp(8px, 2vw, 24px);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.zone {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--gap) / 2);
+}
+
+.middle {
+  min-height: clamp(36px, 7vh, 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+}
+
+.controls {
+  height: clamp(48px, 9vh, 72px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+}
+
+/* Button cooldown */
+.btn {
+  position: relative;
+  min-width: 140px;
+  height: 100%;
+  touch-action: manipulation;
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btn.cooling::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--gold);
+  transform-origin: left;
+  animation: cooldown var(--cd, 0.6s) linear both;
+}
+@keyframes cooldown {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Short screens */
+@media (max-height: 560px) {
+  :root { --card-w: clamp(44px, min(9vw, 15vh), 100px); }
+  .dealer-silhouette { display: none; }
+  .message-bar { font-size: 0.95rem; }
+}
+
+/* Flash overlay */
+.flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(209, 32, 47, 0.4);
+  pointer-events: none;
+  z-index: 50;
+  animation: flash-fade 300ms ease-out forwards;
+}
+@keyframes flash-fade {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* Screen shake */
+.shake { animation: shake 300ms ease-out; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
 }
 
 /* Reduced motion */
@@ -257,7 +353,8 @@
   .card,
   .flame,
   .dealer-silhouette .eye,
-  .flame-flicker {
+  .flame-flicker,
+  .shake {
     animation: none !important;
   }
 }
