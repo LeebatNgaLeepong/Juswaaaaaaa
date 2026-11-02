@@ -176,26 +176,14 @@ def test_player_bust_damage() -> None:
 
     game = Game()
     game.start_match()
-    game.start_round()
+    game.player.hand.cards = [Card("2", "hearts"), Card("3", "clubs")]
+    game.dealer.hand.cards = [Card("10", "diamonds"), Card("7", "spades")]
+    game.deck.cards = [Card("Q", "spades"), Card("K", "hearts")]
+    game.state = GameState.PLAYER_TURN
 
-    # Force player to bust by giving them high cards
-    # We'll manipulate the deck to give player K, Q, then 5 (25 = bust)
-    from backend.card import Card
-    game.deck.cards = [
-        Card("K", "hearts"),
-        Card("Q", "spades"),
-        Card("5", "clubs"),
-        Card("2", "diamonds"),
-        Card("3", "clubs"),
-    ] + game.deck.cards[5:]
-
-    # Deal again with our forced cards
-    game.start_round()
-
-    # Player hits to bust
-    game.player_hit()  # Gets K
-    game.player_hit()  # Gets Q (20)
-    game.player_hit()  # Gets 5 (25 = bust)
+    # Deck.draw() pops from the end, so the player draws K then Q and busts.
+    game.player_hit()
+    game.player_hit()
 
     assert game.player.hand.is_bust(), "Player should be bust"
     assert game.state == GameState.ROUND_RESULT, "Should be in ROUND_RESULT"
